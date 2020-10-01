@@ -19,7 +19,7 @@ import { useForm } from "form-react-form";
 import schema from "./schema";
 
 export interface FormInput {
-  username: string;
+  email: string;
   password: string;
 }
 
@@ -33,22 +33,44 @@ const Form: FC = () => {
   return (
     <form onSubmit={onSubmit}>
       <input
-        name="username"
-        placeholder="Username"
-        value={values.username}
-        errors={errors.username}
+        name="email"
+        placeholder="Email"
+        value={values.email}
         onChange={onChange}
       />
+      {errors.email && <span>{errors.email[0]}</span>}
+
       <input
         name="password"
         type="password"
         placeholder="Password"
         value={values.password}
-        errors={errors.password}
         onChange={onChange}
       />
+      {errors.password && <span>{errors.password[0]}</span>}
+
       <button>Login</button>
     </form>
   );
+};
+```
+
+Using [fastest-validator](https://github.com/icebob/fastest-validator) under the hood for schema validation.
+
+```tsx
+export default {
+  email: {
+    type: "string",
+    email: true,
+    empty: false,
+    min: 2,
+    max: 255,
+  },
+  password: {
+    type: "string",
+    empty: false,
+    min: 8,
+    max: 64,
+  },
 };
 ```
