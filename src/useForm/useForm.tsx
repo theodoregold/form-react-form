@@ -1,70 +1,63 @@
-import { useState } from 'react';
+import { useCallback, useState } from "react";
 
-import validatorHelper from '../validator';
+import validator from "../validator";
 
-import {
-  Form,
-  FormChange,
-  FormErrors,
-  FormValues,
-  WrapFormChange,
-  WrapFormSubmit,
-} from './useForm.types';
+import { Form, FormChange, FormErrors, FormValues, WrapFormChange, WrapFormSubmit } from "./useForm.types";
 
-const useForm = <Input extends object, Output extends Input = Input>({
-  schema,
-  defaults = {},
-}: Form<Input>) => {
+const useForm = <Input extends object, Output extends Input = Input>({ schema, defaults = {} }: Form<Input>) => {
   const [values, setValues] = useState<FormValues<Input>>({ ...defaults });
   const [errors, setErrors] = useState<FormErrors<Input>>({});
 
-  const onChange: FormChange<Input> = (value, name) => {
-    setValues({
-      ...values,
-      [name]: value,
-    });
-
-    if (!errors[name]) return;
-
-    const errorsInput = validatorHelper.one<Partial<Input>>(
-      {
-        ...values,
+  const onChange: FormChange<Input> = useCallback(
+    (value, name) => {
+      setValues((prevState) => ({
+        ...prevState,
         [name]: value,
-      },
-      name,
-      schema
-    );
+      }));
 
-    setErrors(prevState => ({
-      ...prevState,
-      [name]: errorsInput,
-    }));
-  };
+      if (!errors[name]) return;
 
-  const wrapChange: WrapFormChange<Input> = onChangeProp => (
-    value,
-    name,
-    event
-  ) => {
-    onChange(value, name, event);
-    onChangeProp(value, name, event);
-  };
+      const errorsInput = validator.one<Partial<Input>>(
+        {
+          ...values,
+          [name]: value,
+        },
+        name,
+        schema,
+      );
 
-  const wrapSubmit: WrapFormSubmit<Input, Output> = onSubmitProp => event => {
-    event.preventDefault();
+      setErrors((prevState) => ({
+        ...prevState,
+        [name]: errorsInput,
+      }));
+    },
+    [errors, values, schema],
+  );
 
-    const errorsForm = validatorHelper.all<Partial<Input>>(values, schema);
+  const wrapChange: WrapFormChange<Input> = useCallback(
+    (onChangeProp) => (value, name, event) => {
+      onChange(value, name, event);
+      onChangeProp(value, name, event);
+    },
+    [onChange],
+  );
 
-    console.log(errorsForm, 'errorsForm');
+  const wrapSubmit: WrapFormSubmit<Input, Output> = useCallback(
+    (onSubmitProp) => (event) => {
+      event.preventDefault();
 
-    if (errorsForm) {
-      setErrors(errorsForm);
+      const errorsForm = validator.all<Partial<Input>>(values, schema);
 
-      return;
-    }
+      if (errorsForm) {
+        setErrors(errorsForm);
 
-    if (!errorsForm) onSubmitProp(values as Output);
-  };
+        return;
+      }
+
+      if (!errorsForm) onSubmitProp(values as Output);
+    },
+    [schema, values],
+  );
 
   return {
     onChange,
