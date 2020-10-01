@@ -9,9 +9,9 @@ module.exports = {
     sourceType: "module",
   },
   env: {
-    jest: true,
     browser: true,
     es6: true,
+    jest: true,
     node: true,
   },
   settings: {
@@ -28,35 +28,18 @@ module.exports = {
     "prettier/@typescript-eslint",
   ],
   rules: {
-    // FE & BE general
-    "no-console": "off",
-    "@typescript-eslint/no-unused-vars": ["warn", { ignoreRestSiblings: true }],
-    "@typescript-eslint/explicit-member-accessibility": "off",
+    "@typescript-eslint/camelcase": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-member-accessibility": "off",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/no-object-literal-type-assertion": "off",
     "@typescript-eslint/no-parameter-properties": "off",
-    "@typescript-eslint/ban-ts-ignore": "off",
-    "@typescript-eslint/camelcase": "off",
-
-    // FE specific
+    "@typescript-eslint/no-unused-vars": ["warn", { ignoreRestSiblings: true }],
+    "no-console": "off",
+    "react-hooks/exhaustive-deps": "warn",
+    "react-hooks/rules-of-hooks": "error",
     "react/display-name": "off",
     "react/prop-types": "off",
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
-    "no-restricted-imports": [
-      "error",
-      {
-        paths: [
-          {
-            name: "styled-components",
-            message: "Please import from styled-components/macro.",
-          },
-        ],
-        patterns: ["!styled-components/macro"],
-      },
-    ],
   },
 };
