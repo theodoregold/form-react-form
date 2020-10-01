@@ -1,8 +1,8 @@
-import clone from 'ramda/es/clone';
+import clone from "ramda/es/clone";
 import Validator, {
   ValidationError,
   ValidationSchema,
-} from 'fastest-validator';
+} from "fastest-validator";
 
 const validator = new Validator();
 

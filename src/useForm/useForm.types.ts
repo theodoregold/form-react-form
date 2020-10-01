@@ -1,5 +1,5 @@
-import { ChangeEvent, FormEvent } from 'react';
-import { ValidationSchema } from 'fastest-validator';
+import { ChangeEvent, FormEvent } from "react";
+import { ValidationSchema } from "fastest-validator";
 
 export interface Form<T> {
   defaults?: Partial<T>;
@@ -12,11 +12,11 @@ export type FormErrors<T> = Partial<Record<keyof T, string[]>>;
 export type FormChange<T> = (
   value: T[keyof T],
   name: keyof T,
-  event?: ChangeEvent
+  event?: ChangeEvent,
 ) => void;
 type FormSubmit = (event: FormEvent<HTMLFormElement>) => void;
 
 export type WrapFormChange<T> = (onChange: FormChange<T>) => FormChange<T>;
 export type WrapFormSubmit<T, O = T> = (
-  onSubmit: (values: O) => void
+  onSubmit: (values: O) => void,
 ) => FormSubmit;

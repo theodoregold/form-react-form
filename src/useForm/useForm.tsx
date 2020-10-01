@@ -2,9 +2,19 @@ import { useCallback, useState } from "react";
 
 import validator from "../validator";
 
-import { Form, FormChange, FormErrors, FormValues, WrapFormChange, WrapFormSubmit } from "./useForm.types";
+import {
+  Form,
+  FormChange,
+  FormErrors,
+  FormValues,
+  WrapFormChange,
+  WrapFormSubmit,
+} from "./useForm.types";
 
-const useForm = <Input extends object, Output extends Input = Input>({ schema, defaults = {} }: Form<Input>) => {
+const useForm = <Input extends object, Output extends Input = Input>({
+  schema,
+  defaults = {},
+}: Form<Input>) => {
   const [values, setValues] = useState<FormValues<Input>>({ ...defaults });
   const [errors, setErrors] = useState<FormErrors<Input>>({});
 
