@@ -16,7 +16,16 @@ export type FormChange<T> = (
 ) => void;
 type FormSubmit = (event: FormEvent<HTMLFormElement>) => void;
 
-export type WrapFormChange<T> = (onChange: FormChange<T>) => FormChange<T>;
+export type WrapArgFormChange<T> = (
+  value: T[keyof T],
+  name: keyof T,
+  event?: ChangeEvent,
+) => T[keyof T];
+export type WrapArgFormSubmit<O> = (values: O) => void;
+
+export type WrapFormChange<T> = (
+  onChange: WrapArgFormChange<T>,
+) => FormChange<T>;
 export type WrapFormSubmit<T, O = T> = (
-  onSubmit: (values: O) => void,
+  onSubmit: WrapArgFormSubmit<O>,
 ) => FormSubmit;

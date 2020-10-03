@@ -46,8 +46,8 @@ const useForm = <Input extends object, Output extends Input = Input>({
 
   const wrapChange: WrapFormChange<Input> = useCallback(
     (onChangeProp) => (value, name, event) => {
+      if (onChangeProp) value = onChangeProp(value, name, event);
       onChange(value, name, event);
-      onChangeProp(value, name, event);
     },
     [onChange],
   );
