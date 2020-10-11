@@ -10,7 +10,7 @@ or
 yarn add form-react-form
 ```
 
-## Uasge
+## Usage
 
 ```tsx
 import React, { FC } from "react";
