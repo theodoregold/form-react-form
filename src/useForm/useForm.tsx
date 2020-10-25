@@ -14,7 +14,7 @@ import {
 
 const isEvent = (event: unknown): event is ChangeEvent =>
   event instanceof Object && "nativeEvent" in event;
-const isMap = <T extends unknown>(values: unknown): values is T =>
+const isMap = <T extends object>(values: unknown): values is T =>
   //
   values instanceof Object;
 
@@ -25,55 +25,74 @@ const useForm = <Input extends object, Output extends Input = Input>({
   const [values, setValues] = useState<FormValues<Input>>({ ...defaults });
   const [errors, setErrors] = useState<FormErrors<Input>>({});
 
-  const mapChange: MapChange<Input> = useCallback((...args: any[]) => {
-    let value: Input[keyof Input];
-    let name: keyof Input;
+  const mapChange: MapChange<Input> = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (...args: any[]) => {
+      let value: Input[keyof Input] | undefined;
+      let name: keyof Input;
 
-    if (isEvent(args[0])) {
-      const event = args[0];
-      name = event.target.name as keyof Input;
-      value = event.target.value as Input[keyof Input];
-    } else if (isMap<Input>(args[0])) {
-      const values = args[0];
-      [[name, value]] = Object.entries(values);
-    } else {
-      value = args[0];
-      name = args[1];
-    }
+      if (isEvent(args[0])) {
+        const event = args[0];
+        name = event.target.name as keyof Input;
+        value = event.target.value as Input[keyof Input] | undefined;
+      } else if (isMap<Partial<Input>>(args[0])) {
+        return args[0];
+      } else {
+        value = args[0];
+        name = args[1];
+      }
 
-    return { [name]: value } as Input;
-  }, []);
+      return { [name]: value } as Partial<Input>;
+    },
+    [],
+  );
 
   const onChange: FormChange<Input> = useCallback(
-    (...args: [any]) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (...args: any) => {
+      const changes = mapChange.apply(undefined, args);
+
       setValues((prevState) => ({
         ...prevState,
-        ...mapChange(...args),
+        ...changes,
       }));
 
-      if (!errors[name]) return;
+      const names = Object.keys(changes);
 
-      const errorsInput = validator.one<Partial<Input>>(
+      if (!names.some((name) => errors[name])) return;
+
+      const errorsForm = validator.multiple<Partial<Input>>(
         {
           ...values,
-          ...mapChange(...args),
+          ...changes,
         },
-        name,
+        names,
         schema,
       );
 
-      setErrors((prevState) => ({
-        ...prevState,
-        [name]: errorsInput,
-      }));
+      setErrors((prevState) => {
+        const errorsNext = names.reduce(
+          (acc, name) => {
+            delete acc[name];
+            return acc;
+          },
+          { ...prevState },
+        );
+
+        return {
+          ...errorsNext,
+          ...errorsForm,
+        };
+      });
     },
     [errors, values, schema, mapChange],
   );
 
   const wrapChange: WrapFormChange<Input> = useCallback(
-    (onChangeProp) => (...args: [any]) => {
-      onChangeProp && onChangeProp(...args);
-      onChange(...args);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (onChangeProp) => (...args: any) => {
+      onChangeProp && onChangeProp.apply(undefined, args);
+      onChange.apply(undefined, args);
     },
     [onChange],
   );

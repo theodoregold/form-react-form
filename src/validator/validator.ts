@@ -1,8 +1,6 @@
 import clone from "ramda/es/clone";
-import Validator, {
-  ValidationError,
-  ValidationSchema,
-} from "fastest-validator";
+import pick from "ramda/es/pick";
+import Validator, { ValidationError, ValidationSchema } from "fastest-validator";
 
 const validator = new Validator();
 
@@ -21,26 +19,17 @@ const all = <T>(values: T, schema: ValidationSchema<T>) => {
 
   if (result === true) return;
 
-  const errors = mapErrors(result) as Partial<Record<keyof T, string[]>>;
-
-  return errors;
+  return mapErrors(result) as Partial<Record<keyof T, string[]>>;
 };
 
-const one = <T>(values: T, target: keyof T, schema: ValidationSchema<T>) => {
-  const errors = validator.validate(clone(values), {
-    [target]: {
-      ...schema[target],
-    },
+const multiple = <T>(values: T, targets: (keyof T)[], schema: ValidationSchema<T>) => {
+  const result = validator.validate(clone(values), {
+    ...pick(targets, schema),
   });
 
-  if (errors === true) return;
+  if (result === true) return;
 
-  const errorsByField = mapErrors(errors) as Partial<Record<keyof T, string[]>>;
-  const errorsInput = errorsByField[target];
-
-  if (!errorsInput || !errorsInput.length) return;
-
-  return errorsInput;
+  return mapErrors(result) as Partial<Record<keyof T, string[]>>;
 };
 
-export default { all, one };
+export default { all, multiple };

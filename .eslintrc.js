@@ -37,6 +37,7 @@ module.exports = {
     "@typescript-eslint/no-parameter-properties": "off",
     "@typescript-eslint/no-unused-vars": ["warn", { ignoreRestSiblings: true }],
     "no-console": "off",
+    "prefer-spread": "off",
     "react-hooks/exhaustive-deps": "warn",
     "react-hooks/rules-of-hooks": "error",
     "react/display-name": "off",
