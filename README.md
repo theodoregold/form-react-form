@@ -36,12 +36,7 @@ const Form: FC = () => {
 
   return (
     <form onSubmit={onSubmit}>
-      <input
-        name="email"
-        placeholder="Email"
-        value={values.email}
-        onChange={onChange}
-      />
+      <input name="email" placeholder="Email" value={values.email} onChange={onChange} />
       {errors.email && <span>{errors.email[0]}</span>}
 
       <input
@@ -82,26 +77,20 @@ export default {
 ### API
 
 ```tsx
-const {
-  values,
-  errors,
-  setValues,
-  setErrors,
-  onChange,
-  wrapChange,
-  wrapSubmit,
-} = useForm(options);
+const { values, errors, setValues, setErrors, onChange, wrapChange, wrapSubmit } = useForm(options);
 ```
 
 #### Return
 
-- `values`: Object containing values of each input by name.
-- `errors`: Object containing errors of each input by name.
-- `onChange(event, name, value)`: Function to pass to each input and let `useForm` handle changes.
-- `wrapChange((unknown) => value | undefined)`: Wrapper function to have custom control over input change before value gets passed to `useForm` for handling.
-- `wrapSubmit((values, event) => void)`: Wrapper function to receive successful submit events.
-- `setValues`: Function to update values.
-- `setErrors`: Function to update errors. Commonly used in `wrapSubmit` to set errors sent from server.
+| Name         | Input/Output                                                                        | Description                                                                                                   |
+| ------------ | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `values`     | { [name]: value }                                                                   | Object containing values of each input by name.                                                               |
+| `errors`     | { [name]: string[] }                                                                | Object containing errors of each input by name.                                                               |
+| `onChange`   | `(event) => void` <br/> `(value, name) => void` <br/> `({ [name]: value }) => void` | Function that handles input changes.                                                                          |
+| `wrapChange` | `(onChange) => void`                                                                | Wrapper function to have custom control over input change before value gets passed to `useForm` for handling. |
+| `wrapSubmit` | `((values) => void) => void`                                                        | Wrapper function to have custom control over input change before value gets passed to `useForm` for handling. |
+| `setValues`  | `({ [name]: value }) => void`                                                       | Function to update values.                                                                                    |
+| `setErrors`  | `({ [name]: string[] }) => void`                                                    | Function to update errors. Commonly used in `wrapSubmit` to set errors sent from server.                      |
 
 #### Options
 
@@ -135,12 +124,7 @@ const Form: FC = () => {
 
   return (
     <form onSubmit={onSubmit}>
-      <input
-        name="age"
-        placeholder="Age"
-        value={values.age}
-        onChange={onChange}
-      />
+      <input name="age" placeholder="Age" value={values.age} onChange={onChange} />
 
       <button>Set</button>
     </form>
