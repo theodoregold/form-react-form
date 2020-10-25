@@ -16,7 +16,8 @@
     "rootDir": "./src",
     "skipLibCheck": true,
     "sourceMap": true,
-    "strict": true
+    "strict": true,
+    "typeRoots": ["./node_modules/@types", "./typings"]
   },
   "include": ["src", "types", "tests"],
   "exclude": ["node_modules"]
