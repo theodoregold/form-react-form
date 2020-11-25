@@ -1,98 +1,118 @@
-import { ChangeEvent, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 
 import validator from "../validator";
 
 import {
   Form,
+  State,
+  ValidateForm,
   MapChange,
+  CustomEvent,
   FormChange,
-  FormErrors,
-  FormValues,
   WrapFormChange,
   WrapFormSubmit,
 } from "./useForm.types";
 
-const isEvent = (event: unknown): event is ChangeEvent =>
+const isName = <T,>(name: unknown): name is keyof T => typeof name === "string";
+const isValue = <T,>(value: unknown): value is T[keyof T] => !value || !!value;
+const isEvent = <T,>(event: unknown): event is CustomEvent<T> =>
   event instanceof Object && "nativeEvent" in event;
-const isMap = <T extends object>(values: unknown): values is T =>
-  //
-  values instanceof Object;
+const isObject = <T,>(values: unknown): values is T => values instanceof Object;
+
+const validateForm = <Input,>({ names, values, errors, changes, schema }: ValidateForm<Input>) => {
+  const errorsForm = validator.multiple<Partial<Input>>(
+    {
+      ...values,
+      ...changes,
+    },
+    names,
+    schema,
+  );
+
+  const errorsClear = names.reduce(
+    (acc, name) => {
+      delete acc[name];
+      return acc;
+    },
+    { ...errors },
+  );
+
+  return {
+    ...errorsClear,
+    ...errorsForm,
+  };
+};
 
 const useForm = <Input extends object, Output extends Input = Input>({
   schema,
   defaults = {},
 }: Form<Input>) => {
-  const [values, setValues] = useState<FormValues<Input>>({ ...defaults });
-  const [errors, setErrors] = useState<FormErrors<Input>>({});
+  const [{ values, errors }, setState] = useState<State<Input>>({
+    values: { ...defaults },
+    errors: {},
+  });
+
+  const setValues = useCallback((values: State<Input>["values"]) => {
+    setState((prevState) => ({ ...prevState, values }));
+  }, []);
+
+  const setErrors = useCallback((errors: State<Input>["errors"]) => {
+    setState((prevState) => ({ ...prevState, errors }));
+  }, []);
 
   const mapChange: MapChange<Input> = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (...args: any[]) => {
-      let value: Input[keyof Input] | undefined;
-      let name: keyof Input;
+    (...[arg1, arg2]: any[]) => {
+      const changes: Partial<Input> = {};
 
-      if (isEvent(args[0])) {
-        const event = args[0];
-        name = event.target.name as keyof Input;
-        value = event.target.value as Input[keyof Input] | undefined;
-      } else if (isMap<Partial<Input>>(args[0])) {
-        return args[0];
+      if (isEvent<Input>(arg1)) {
+        changes[arg1.target.name] = arg1.target.value;
+      } else if (isValue<Input>(arg1) && isName<Input>(arg2)) {
+        changes[arg2] = arg1;
+      } else if (isObject<Input>(arg1)) {
+        Object.assign(changes, arg1);
       } else {
-        value = args[0];
-        name = args[1];
+        throw Error("Invalid change value");
       }
 
-      return { [name]: value } as Partial<Input>;
+      return changes;
     },
     [],
   );
 
   const onChange: FormChange<Input> = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (...args: any) => {
-      const changes = mapChange.apply(undefined, args);
+    (...[arg1, arg2]: any[]) => {
+      const changes = mapChange(arg1, arg2);
 
-      setValues((prevState) => ({
-        ...prevState,
-        ...changes,
-      }));
-
-      const names = Object.keys(changes);
-
-      if (!names.some((name) => errors[name])) return;
-
-      const errorsForm = validator.multiple<Partial<Input>>(
-        {
+      setState(({ values, errors }) => {
+        const names = Object.keys(changes);
+        const valuesNext = {
           ...values,
           ...changes,
-        },
-        names,
-        schema,
-      );
+        };
 
-      setErrors((prevState) => {
-        const errorsNext = names.reduce(
-          (acc, name) => {
-            delete acc[name];
-            return acc;
-          },
-          { ...prevState },
-        );
+        if (!names.some((name) => errors[name])) {
+          return {
+            errors,
+            values: valuesNext,
+          };
+        }
 
         return {
-          ...errorsNext,
-          ...errorsForm,
+          errors: validateForm<Input>({ names, values, errors, changes, schema }),
+          values: valuesNext,
         };
       });
     },
-    [errors, values, schema, mapChange],
+    [schema, mapChange],
   );
 
   const wrapChange: WrapFormChange<Input> = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (onChangeProp) => (...args: any) => {
-      onChangeProp && onChangeProp.apply(undefined, args);
-      onChange.apply(undefined, args);
+    (onChangeProp) => (...[arg1, arg2]: any[]) => {
+      onChangeProp && onChangeProp(arg1, arg2);
+      onChange(arg1, arg2);
     },
     [onChange],
   );
@@ -101,17 +121,18 @@ const useForm = <Input extends object, Output extends Input = Input>({
     (onSubmitProp) => (event) => {
       event.preventDefault();
 
-      const errorsForm = validator.all<Partial<Input>>(values, schema);
+      setState(({ values, errors }) => {
+        const errorsForm = validator.all<Partial<Input>>(values, schema);
 
-      if (errorsForm) {
-        setErrors(errorsForm);
+        if (!errorsForm) onSubmitProp(values as Output);
 
-        return;
-      }
-
-      if (!errorsForm) onSubmitProp(values as Output);
+        return {
+          errors: errorsForm || errors,
+          values,
+        };
+      });
     },
-    [schema, values],
+    [schema],
   );
 
   return {
