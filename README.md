@@ -1,3 +1,8 @@
+[![size](https://img.shields.io/bundlephobia/minzip/form-react-form)](https://bundlephobia.com/result?p=form-react-form)
+[![npm version](https://img.shields.io/npm/v/form-react-form.svg)](https://www.npmjs.com/package/form-react-form)
+[![npm downloads](https://img.shields.io/npm/dt/form-react-form.svg)](https://www.npmjs.com/package/form-react-form)
+[![license](https://img.shields.io/npm/l/form-react-form)](https://github.com/form-react-form/form-react-form/blob/master/LICENSE)
+
 ## Install
 
 ```
