@@ -48,4 +48,5 @@ module.exports = {
     "react/display-name": "off",
     "react/prop-types": "off",
     "prefer-spread": "off",
+  },
 };
