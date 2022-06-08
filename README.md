@@ -104,7 +104,7 @@ const { values, errors, setValues, setErrors, onChange, wrapChange, wrapSubmit }
 
 ## Typescript
 
-When using forms with different input and output values you should also provide `FormOutput` types because `fastest-validator` unfortunately can't convert them using schema.
+When using forms with different input and output values you should also provide `FormOutput` types because `fastest-validator` can't convert them using schema.
 
 ```tsx
 // ...
