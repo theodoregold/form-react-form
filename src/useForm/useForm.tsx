@@ -11,6 +11,8 @@ import {
   FormChange,
   WrapFormChange,
   WrapFormSubmit,
+  SetValues,
+  SetErrors,
 } from "./useForm.types";
 
 const isName = <T,>(name: unknown): name is keyof T => typeof name === "string";
@@ -52,12 +54,16 @@ const useForm = <Input extends object, Output extends Input = Input>({
     errors: {},
   });
 
-  const setValues = useCallback((values: State<Input>["values"]) => {
-    setState((prevState) => ({ ...prevState, values }));
+  const setValues: SetValues<State<Input>["values"]> = useCallback((values) => {
+    const nextValues = typeof values === "function" ? values : () => values;
+
+    setState((prevState) => ({ ...prevState, values: nextValues(prevState.values) }));
   }, []);
 
-  const setErrors = useCallback((errors: State<Input>["errors"]) => {
-    setState((prevState) => ({ ...prevState, errors }));
+  const setErrors: SetErrors<State<Input>["errors"]> = useCallback((errors) => {
+    const nextValues = typeof errors === "function" ? errors : () => errors;
+
+    setState((prevState) => ({ ...prevState, errors: nextValues(prevState.errors) }));
   }, []);
 
   const mapChange: MapChange<Input> = useCallback(

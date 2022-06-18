@@ -19,6 +19,12 @@ export interface ValidateForm<T> {
   schema: Partial<ValidationSchema<T>>;
 }
 
+export type SetValuesCallback<S> = (prevState: S) => S;
+export type SetValues<S> = (value: S | SetValuesCallback<S>) => void;
+
+export type SetErrorsCallback<S> = (prevState: S) => S;
+export type SetErrors<S> = (value: S | SetValuesCallback<S>) => void;
+
 export type FormValues<T> = Partial<T>;
 export type FormErrors<T> = Partial<Record<keyof T, string[]>>;
 
