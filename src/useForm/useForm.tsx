@@ -125,7 +125,7 @@ const useForm = <Input extends object, Output extends Input = Input>({
 
   const wrapSubmit: WrapFormSubmit<Input, Output> = useCallback(
     (onSubmitProp) => (event) => {
-      event.preventDefault();
+      event?.preventDefault();
 
       setState(({ values, errors }) => {
         const errorsForm = validator.all<Partial<Input>>(values, schema);

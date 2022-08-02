@@ -41,7 +41,7 @@ export interface FormChange<T> {
   (map: Partial<T>): void;
   (value: T[keyof T], name: keyof T): void;
 }
-export type FormSubmit = (event: FormEvent<HTMLFormElement>) => void;
+export type FormSubmit = (event?: FormEvent<HTMLFormElement>) => void;
 
 export type WrapFormChange<T> = (onChange: FormChange<T>) => FormChange<T>;
 export type WrapFormSubmit<T, O = T> = (onSubmit: (values: O) => void) => FormSubmit;
